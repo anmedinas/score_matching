@@ -1,0 +1,48 @@
+flowchart TD
+    subgraph scripts_ejecutables["Scripts ejecutables (__main__)"]
+        DL[download_data.py]
+        TR[train.py]
+        TRC[train_clf.py]
+        SP[sample.py]
+        EV[evaluate.py]
+    end
+
+    subgraph modulos["Módulos importables (arquitecturas)"]
+        M[model.py<br/>class Modelo]
+        MC[model_clf.py<br/>class Clasificador]
+    end
+
+    subgraph filesystem["Artefactos en disco"]
+        DATA[(data/<br/>MNIST)]
+        CKCOND[(checkpoints/modelo_cond.pt)]
+        CKCFG[(checkpoints/modelo_cfg.pt)]
+        CKCLF[(checkpoints/clasificador.pt)]
+        LOSS[[figures/loss/*.png]]
+        SAMP[[figures/samples/*.png]]
+        EVALFIG[[figures/evaluate/*.png + tablas]]
+    end
+
+    DL -->|descarga| DATA
+
+    TR -- "from model import Modelo" --> M
+    TRC -- "from model_clf import Clasificador" --> MC
+    SP -- "from model import Modelo" --> M
+    EV -- "from model import Modelo" --> M
+    EV -- "from model_clf import Clasificador" --> MC
+
+    DATA --> TR
+    DATA --> TRC
+
+    TR -- "--label-dropout 0.0" --> CKCOND
+    TR -- "--label-dropout > 0.0" --> CKCFG
+    TR --> LOSS
+    TRC --> CKCLF
+
+    CKCOND -- "--checkpoint" --> SP
+    CKCFG -- "--checkpoint" --> SP
+    SP --> SAMP
+
+    CKCOND --> EV
+    CKCFG --> EV
+    CKCLF --> EV
+    EV --> EVALFIG

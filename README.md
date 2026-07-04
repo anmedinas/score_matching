@@ -15,16 +15,35 @@ score_matching/
 ├── train_clf.py        # entrena el clasificador auxiliar
 ├── sample.py           # genera imagenes integrando la SDE reversa
 ├── evaluate.py         # compara modelo_cond vs modelo_cfg (fidelidad/diversidad)
+├── pipeline.mmd        # fuente Mermaid del diagrama de flujo entre archivos
 ├── requirements.txt
 ├── data/               # MNIST descargado (no versionado, solo el script)
 ├── checkpoints/        # modelo_cond.pt, modelo_cfg.pt, clasificador.pt
 ├── figures/
 │   ├── loss/           # curvas de perdida (.png) de cada red de difusion
 │   ├── samples/        # grillas .png generadas por sample.py
-│   └── evaluate/       # tablas/graficos generados por evaluate.py
+│   ├── evaluate/       # tablas/graficos generados por evaluate.py
+│   └── pipeline.png    # diagrama del flujo entre archivos (ver mas abajo)
 ├── informe/            # informe.pdf (maximo 3 planas) + fuente si aplica
 └── notebooks/          # exploracion inicial (opcional, no evaluado)
 ```
+
+### 🧩 Grafo entre archivos
+
+`figures/pipeline.png` documenta como se invocan los archivos entre si (`imports`)
+y como fluyen los artefactos en disco (`data/` -> checkpoints -> figuras). Se
+genera con [Mermaid](https://mermaid.js.org/syntax/flowchart.html) a partir de
+un archivo `.mmd` con el diagrama:
+
+```bash
+npm install -g @mermaid-js/mermaid-cli   # una sola vez
+
+mmdc -i pipeline.mmd -o figures/pipeline.png -b white -s 2
+```
+
+Para editar el diagrama, modifica `pipeline.mmd` y vuelve a correr `mmdc`. El
+diagrama tambien puede visualizarse sin instalar nada pegando el contenido de
+`pipeline.mmd` en [mermaid.live](https://mermaid.live).
 
 ## ☕ Entorno
 
