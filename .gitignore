@@ -10,3 +10,7 @@ venv/
 *.egg-info/
 
 .DS_Store
+
+informe/Tarea_3.pdf
+informe/score_matching_teoria.pdf
+TODO.md

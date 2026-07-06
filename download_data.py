@@ -5,11 +5,14 @@ de entrenamiento. Los datos descargados no se incluyen en la entrega, solo
 este script.
 """
 
+from torchvision.datasets import MNIST
+
 DATA_DIR = "data"
 
 
 def download_data(root: str = DATA_DIR) -> None:
-    raise NotImplementedError
+    MNIST(root=root, train=True, download=True)
+    MNIST(root=root, train=False, download=True)
 
 
 if __name__ == "__main__":
