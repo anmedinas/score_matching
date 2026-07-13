@@ -13,4 +13,9 @@ venv/
 
 informe/Tarea_3.pdf
 informe/score_matching_teoria.pdf
+informe/Modelos_de_generativos_de_difusion_mini_curso_MIT_.pdf
 TODO.md
+
+# smoke test 
+notebooks/smoke_test_colab.ipynb
+notebooks/smoke_test_local.py
