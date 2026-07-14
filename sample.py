@@ -41,6 +41,11 @@ def sample(model, condition, *, n_steps, w, device, sigma_coef=0.5, seed=None, *
     """
     model.to(device)
     model.eval()
+    # Ver train.py: mismo motivo, deja el forward pass reproducible en GPU
+    # independiente de que otro codigo en el mismo proceso haya activado
+    # cudnn.benchmark.
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
     y = condition.get("y")
     x0 = condition.get("x0")

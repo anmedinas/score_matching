@@ -16,6 +16,15 @@ informe/score_matching_teoria.pdf
 informe/Modelos_de_generativos_de_difusion_mini_curso_MIT_.pdf
 TODO.md
 
-# smoke test 
+# smoke test
 notebooks/smoke_test_local.py
 notebooks/smoke_test_colab.ipynb
+
+# LaTeX build artifacts
+informe/*.aux
+informe/*.log
+informe/*.out
+informe/*.fls
+informe/*.fdb_latexmk
+informe/*.synctex.gz
+informe/*.toc

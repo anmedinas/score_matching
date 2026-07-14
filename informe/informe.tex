@@ -1,0 +1,127 @@
+\documentclass[a4paper,10pt]{article}
+
+% PAQUETES ---------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
+\usepackage{mathrsfs}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+% TEOREMAS -----------------------------------------------------
+\theoremstyle{definition}	\newtheorem*{df}{Definici\'on}
+\theoremstyle{definition}	\newtheorem{tm}{Teorema}
+\theoremstyle{definition}	\newtheorem*{prop}{Proposición}
+\theoremstyle{plain}		\newtheorem*{lema}{Lema}
+\theoremstyle{plain}		\newtheorem*{obs}{Observaci\'on}
+\theoremstyle{remark}		\newtheorem*{dem}{Demostraci\'on}
+
+% OTROS ----------------------------------------------------------
+\spanishdecimal{.}
+\hypersetup{colorlinks=true,linkcolor=blue}
+
+\begin{document}
+
+%---------------------------------------------
+\begin{figure}[h]
+\begin{minipage}{3cm}
+\hfill{\includegraphics[scale=0.5]{../figures/logo.png}}
+\end{minipage}
+\   \  \begin{minipage}{9cm}
+\noindent\sc Universidad de Chile\\
+Facultad de Cs. Físicas y Matemáticas \\
+Departamento de Ingeniería Matemática\\
+Primer Semestre 2026
+\end{minipage}
+\end{figure}
+%---------------------------------------------
+\vspace{0.5cm}
+%---------------------------------------------
+\begin{center}
+\textbf{\LARGE{Tópicos Matemáticos en Aprendizaje de Máquinas, Redes Neuronales y Aprendizaje Profundo}}\\
+\end{center}
+\begin{center}\vspace{0.2cm}
+\large Profesores: Claudio Muñoz y Joaquín Fontbona\\
+Auxiliares: David Felipe, Álvaro Márquez, Diego Olguín, Alonso Rojas y Alonso Urbina \\
+Alumno: Andrés C. Medina \\
+\end{center}
+\large
+\vspace{0.2cm}
+
+\section{Desarrollo teórico}
+
+\noindent\textbf{(a) Camino de probabilidad Gaussiano y score condicional.}
+% Completar: p_t(.|z) = N(alpha_t z, beta_t^2 I) elegido (p.ej. CondOT:
+% alpha_t=t, beta_t=1-t) y su score condicional grad log p_t(x|z).
+% Ref.: Ejemplo 9 (score_matching_teoria.pdf) / eq. (16),(37),(39) del apunte MIT.
+\textit{[Completar.]}
+
+\smallskip
+\noindent\textbf{(b) Función de pérdida $\mathcal{L}$ y su relación con $\mathcal{L}_{\text{SM}}$.}
+% Completar: por que minimizar la perdida DSM/eps-prediction equivale a
+% minimizar la perdida marginal "real".
+% Ref.: Teorema 3.3 (Hyvarinen) del apunte de teoria / Teorema 20 (p.28) del
+% apunte MIT; Ejemplo 22 (p.29) instancia para caminos Gaussianos.
+\textit{[Completar.]}
+
+\smallskip
+\noindent\textbf{(c) Relación entre $s_\theta$, $\epsilon_\theta$ y $u_\theta$.}
+% Completar: indicar cual parametriza la red (eps_theta, ver model.py) y por
+% que (evita dividir por beta_t durante el entrenamiento).
+% Ref.: Proposicion 1 (p.30) del apunte MIT, formula de conversion exacta.
+\textit{[Completar.]}
+
+\smallskip
+\noindent\textbf{(d) Regla de classifier-free guidance.}
+% Completar: s_tilde_t(x|y) = (1-w) grad log p_t(x|empty) + w grad log p_t(x|y);
+% senalar que es heuristica para w!=1. Describir las dos redes (condicional
+% pura w=1 sin token nulo, vs. CFG con dropout de etiqueta w!=1 con token
+% nulo) y la perdida de entrenamiento de cada una.
+% Ref.: eq. (67),(70),(77) y Algoritmo 5 (p.41) del apunte MIT; Remark 26 (p.39).
+\textit{[Completar.]}
+
+\smallskip
+\noindent\textbf{(e) Algoritmo de muestreo.}
+% Completar: presentar en formato de algoritmo (ver curso) la integracion de
+% la SDE reversa con Euler-Maruyama aplicando CFG.
+% Ref.: Summary 28 (p.42) / Algoritmo 2 (p.12) del apunte MIT.
+\textit{[Completar.]}
+
+\section{Resultados}
+
+\noindent\textbf{Arquitectura.}
+% Completar: red (UNet condicional / CNN clasificador), hiperparametros,
+% tamano de batch, optimizador, etc. Mantener compacto (ver discusion sobre
+% limite de 3 paginas); detalle extendido -> apendice de calculos.
+\textit{[Completar.]}
+
+\smallskip
+\noindent\textbf{Validación experimental.}
+% Completar: fidelidad condicional y diversidad, comparando modelo_cond (w=1)
+% vs modelo_cfg (w!=1), y discusion del compromiso fidelidad/diversidad como
+% reflejo de la naturaleza heuristica de CFG para w!=1.
+\textit{[Completar.]}
+
+\smallskip
+\noindent\textbf{Curvas de pérdida.}
+% Completar: incluir figuras/loss/modelo_cond_loss.png y modelo_cfg_loss.png.
+\textit{[Completar.]}
+
+\smallskip
+\noindent\textbf{Ejemplos de generación.}
+% Completar: incluir grillas de figures/samples/ (modelo_cond y modelo_cfg).
+\textit{[Completar.]}
+
+\section*{Referencias}
+% No cuenta para el limite de 3 paginas. Citar score_matching_teoria.pdf y
+% el apunte MIT (Holderrieth & Erives, An Introduction to Flow Matching and
+% Diffusion Models, MIT 6.S184, 2025).
+
+\appendix
+\section{Cálculos}
+% No cuenta para el limite de 3 paginas ni tiene extension maxima. Usar solo
+% para calculos genuinos (p.ej. conteo de parametros por capa de la UNet y
+% la CNN), no para diagramas de arquitectura (ver discusion previa).
+
+\end{document}

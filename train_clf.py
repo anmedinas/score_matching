@@ -27,6 +27,10 @@ def train(model, data, *, n_epochs, batch_size, lr, device, seed, **kwargs):
     """Entrena 'model' con mini-batches (cross-entropy). Retorna un dict con
     el historial."""
     torch.manual_seed(seed)
+    # Ver train.py: fuerza algoritmos deterministas de cuDNN para que el
+    # entrenamiento sea reproducible entre corridas en GPU.
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
     loader = DataLoader(data, batch_size=batch_size, shuffle=True, drop_last=True)
 
     model.to(device)

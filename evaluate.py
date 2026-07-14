@@ -74,6 +74,10 @@ def evaluate(modelo_cond, modelo_cfg, clasificador, *, w, n_samples, device,
     modelo_cond.to(device).eval()
     modelo_cfg.to(device).eval()
     clasificador.to(device).eval()
+    # Ver train.py: deja los forward pass (muestreo + clasificacion)
+    # reproducibles en GPU.
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
     n_per_class = max(1, n_samples // N_CLASSES)
 

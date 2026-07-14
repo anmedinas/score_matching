@@ -49,6 +49,11 @@ def train(model, data, *, n_epochs, batch_size, lr, device, seed,
     MIT, entrenamiento CFG).
     """
     torch.manual_seed(seed)
+    # cuDNN puede elegir algoritmos de convolucion no deterministas (sobre todo
+    # en backward) incluso con la semilla fija; forzar determinismo cuesta algo
+    # de velocidad pero hace reproducible el entrenamiento entre corridas.
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
     loader = DataLoader(data, batch_size=batch_size, shuffle=True, drop_last=True)
 
     model.to(device)
