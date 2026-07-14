@@ -25,7 +25,9 @@ score_matching/
 │   ├── evaluate/       # tablas/graficos generados por evaluate.py
 │   └── pipeline.png    # diagrama del flujo entre archivos (ver mas abajo)
 ├── informe/            # informe.pdf (maximo 3 planas) + fuente si aplica
-└── notebooks/          # exploracion inicial (opcional, no evaluado)
+└── notebooks/
+    ├── train_colab.ipynb   # orquestador: clona el repo y entrena en GPU (ver seccion de abajo)
+    └── ...                 # notebooks de exploracion inicial (opcional, no evaluado)
 ```
 
 ### 🧩 Grafo entre archivos
@@ -72,6 +74,26 @@ python evaluate.py --modelo-cond checkpoints/modelo_cond.pt \
     --clasificador checkpoints/clasificador.pt \
     --w <w_elegido>
 ```
+
+## 🎮 Entrenamiento en GPU (Colab)
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/anmedinas/score_matching/blob/main/notebooks/train_colab.ipynb)
+
+`notebooks/train_colab.ipynb` es el notebook que usamos para entrenar los
+checkpoints entregados en GPU. **No reimplementa nada**: clona este mismo
+repo desde GitHub y ejecuta `download_data.py`, `train.py`, `train_clf.py`,
+`sample.py` y `evaluate.py` tal cual están en el código (los mismos comandos
+de la sección "Reproducir resultados" de arriba), así el checkpoint
+resultante queda trazado a un commit concreto, no a una copia pegada en una
+celda.
+
+Para usarlo: abrirlo con el botón de arriba (o subirlo a Colab manualmente),
+`Entorno de ejecución -> Cambiar tipo de entorno de ejecución -> GPU`, y
+ejecutar todas las celdas. Los hiperparámetros (épocas, batch size,
+learning rate, `label_dropout`, `w` de CFG, pasos de muestreo) son
+editables en una celda de formulario antes de entrenar — no hay valores
+altos fijados de antemano, se ajustan según el tiempo de GPU disponible. Al
+final, empaqueta `checkpoints/` y `figures/` en un `.zip` descargable.
 
 ## 🍺 Delibery
 

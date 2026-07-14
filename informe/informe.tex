@@ -3,11 +3,24 @@
 % PAQUETES ---------------------------------------------------
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
+\usepackage[margin=2.2cm]{geometry}
 \usepackage{amsmath,amsfonts,amsthm,amssymb}
 \usepackage{mathrsfs}
 \usepackage{bm}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{float}
+
+% Espaciado mas compacto para floats (limite de 3 paginas)
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{3pt}
+\setlength{\belowcaptionskip}{0pt}
+\setlength{\abovedisplayskip}{4pt plus 2pt minus 2pt}
+\setlength{\belowdisplayskip}{4pt plus 2pt minus 2pt}
 
 % TEOREMAS -----------------------------------------------------
 \theoremstyle{definition}	\newtheorem*{df}{Definici\'on}
@@ -24,104 +37,279 @@
 \begin{document}
 
 %---------------------------------------------
-\begin{figure}[h]
-\begin{minipage}{3cm}
-\hfill{\includegraphics[scale=0.5]{../figures/logo.png}}
-\end{minipage}
-\   \  \begin{minipage}{9cm}
-\noindent\sc Universidad de Chile\\
-Facultad de Cs. Físicas y Matemáticas \\
-Departamento de Ingeniería Matemática\\
+\noindent
+\begin{minipage}{2cm}
+\includegraphics[scale=0.35]{../figures/logo.png}
+\end{minipage}%
+\begin{minipage}{13cm}
+\small\sc Universidad de Chile \quad
+Facultad de Cs. Físicas y Matemáticas \quad
+Departamento de Ingeniería Matemática \quad
 Primer Semestre 2026
 \end{minipage}
-\end{figure}
-%---------------------------------------------
-\vspace{0.5cm}
 %---------------------------------------------
 \begin{center}
-\textbf{\LARGE{Tópicos Matemáticos en Aprendizaje de Máquinas, Redes Neuronales y Aprendizaje Profundo}}\\
+\vspace{2pt}
+\textbf{\Large{Tópicos Matemáticos en Aprendizaje de Máquinas, Redes Neuronales y Aprendizaje Profundo}}\\[4pt]
+{\small Profesores: Claudio Muñoz y Joaquín Fontbona \quad
+Auxiliares: David Felipe, Álvaro Márquez, Diego Olguín, Alonso Rojas y Alonso Urbina \quad
+Alumno: Andrés C. Medina}
 \end{center}
-\begin{center}\vspace{0.2cm}
-\large Profesores: Claudio Muñoz y Joaquín Fontbona\\
-Auxiliares: David Felipe, Álvaro Márquez, Diego Olguín, Alonso Rojas y Alonso Urbina \\
-Alumno: Andrés C. Medina \\
-\end{center}
-\large
-\vspace{0.2cm}
+\vspace{4pt}
 
 \section{Desarrollo teórico}
 
 \noindent\textbf{(a) Camino de probabilidad Gaussiano y score condicional.}
-% Completar: p_t(.|z) = N(alpha_t z, beta_t^2 I) elegido (p.ej. CondOT:
-% alpha_t=t, beta_t=1-t) y su score condicional grad log p_t(x|z).
-% Ref.: Ejemplo 9 (score_matching_teoria.pdf) / eq. (16),(37),(39) del apunte MIT.
-\textit{[Completar.]}
+Elegimos el camino \emph{CondOT}: $\alpha_t=t$, $\beta_t=1-t$, $t\in[0,1]$,
+que cumple $\alpha_0=\beta_1=0$, $\alpha_1=\beta_0=1$ (en $t=0$ el camino es
+ruido puro $\mathcal N(0,I_d)$; en $t=1$, el dato limpio $\delta_z$):
+\[
+p_t(\cdot\mid z)=\mathcal N\!\big(t\,z,\ (1-t)^2 I_d\big),
+\qquad
+\nabla\log p_t(x\mid z)=-\frac{x-t z}{(1-t)^2}.
+\]
+Se prefirió por su simplicidad: $\alpha_t,\beta_t$ lineales en $t$ dan
+fórmulas cerradas simples para el campo de velocidad y el score
+condicionales (ítem (c)), evitando \textit{schedulers} más complejos
+(p.ej.\ coseno o el de DDPM).
 
 \smallskip
-\noindent\textbf{(b) Función de pérdida $\mathcal{L}$ y su relación con $\mathcal{L}_{\text{SM}}$.}
-% Completar: por que minimizar la perdida DSM/eps-prediction equivale a
-% minimizar la perdida marginal "real".
-% Ref.: Teorema 3.3 (Hyvarinen) del apunte de teoria / Teorema 20 (p.28) del
-% apunte MIT; Ejemplo 22 (p.29) instancia para caminos Gaussianos.
-\textit{[Completar.]}
+\noindent\textbf{(b) Función de pérdida $\mathcal{L}$ y su relación con $\mathcal{L}_{\mathrm{SM}}$.}
+La pérdida de score matching marginal
+$\mathcal L_{\mathrm{SM}}(\theta)=\tfrac12\mathbb E_{p_t}\|s_\theta(x,t)-\nabla\log p_t(x)\|^2$
+es intratable pues $\nabla\log p_t(x)$ es desconocido. El truco de
+marginalización (Teorema~3.3 y su extensión a DSM, Teorema~4.4, en
+\texttt{score\_matching\_teoria.pdf}; Teorema~20 en el apunte MIT) prueba
+que $\mathcal L_{\mathrm{SM}}(\theta)=\mathcal L_{\mathrm{CSM}}(\theta)+C$
+con $C$ independiente de $\theta$, donde
+\[
+\mathcal L_{\mathrm{CSM}}(\theta)=\mathbb E_{t,\,z\sim p_{\mathrm{data}},\,x\sim p_t(\cdot\mid z)}
+\big\|s_\theta(x,t)-\nabla\log p_t(x\mid z)\big\|^2
+\]
+sí es tratable, ya que $\nabla\log p_t(x\mid z)$ es conocido en forma
+cerrada (ítem (a)). Reparametrizando $s_\theta=-\epsilon_\theta/\beta_t$ y
+sustituyendo $x=\alpha_t z+\beta_t\varepsilon$ se obtiene exactamente la
+pérdida que optimiza \texttt{train.py}:
+\[
+\mathcal L(\theta)=\mathbb E_{t\sim\mathrm{Unif}[0,1],\,z\sim p_{\mathrm{data}},\,\varepsilon\sim\mathcal N(0,I)}
+\big\|\epsilon_\theta(\alpha_t z+\beta_t\varepsilon,\,t)-\varepsilon\big\|^2.
+\]
+Como $\mathcal L$ y $\mathcal L_{\mathrm{CSM}}$ difieren solo por el cambio
+de variable $s_\theta\leftrightarrow\epsilon_\theta$ (biyección que no
+depende de $\theta$), tienen el mismo minimizador; luego minimizar
+$\mathcal L$ equivale a minimizar $\mathcal L_{\mathrm{SM}}$.
 
 \smallskip
 \noindent\textbf{(c) Relación entre $s_\theta$, $\epsilon_\theta$ y $u_\theta$.}
-% Completar: indicar cual parametriza la red (eps_theta, ver model.py) y por
-% que (evita dividir por beta_t durante el entrenamiento).
-% Ref.: Proposicion 1 (p.30) del apunte MIT, formula de conversion exacta.
-\textit{[Completar.]}
+Nuestra red parametriza $\epsilon_\theta$ (predictor de ruido), no
+$s_\theta$ ni $u_\theta$ directamente: evita dividir por $\beta_t$ durante
+el entrenamiento (inestable cuando $\beta_t\to0$, i.e.\ $t\to1$) y es la
+parametrización estándar de DDPM. Para caminos Gaussianos, la
+Proposición~1 del apunte MIT da la conversión exacta
+\[
+u_t(x\mid z)=\Big(\beta_t^2\,\frac{\dot\alpha_t}{\alpha_t}-\dot\beta_t\beta_t\Big)\nabla\log p_t(x\mid z)+\frac{\dot\alpha_t}{\alpha_t}\,x,
+\]
+que para CondOT ($\dot\alpha_t=1$, $\dot\beta_t=-1$) se reduce a
+$u_\theta(x,t)=\big(x-\epsilon_\theta(x,t)\big)/t$; análogamente
+$s_\theta(x,t)=-\epsilon_\theta(x,t)/\beta_t$. En consecuencia basta
+entrenar una sola parametrización ($\epsilon_\theta$): las otras dos se
+recuperan algebraicamente, sin reentrenar, y ambas se usan en el
+muestreo (ítem (e)).
 
 \smallskip
-\noindent\textbf{(d) Regla de classifier-free guidance.}
-% Completar: s_tilde_t(x|y) = (1-w) grad log p_t(x|empty) + w grad log p_t(x|y);
-% senalar que es heuristica para w!=1. Describir las dos redes (condicional
-% pura w=1 sin token nulo, vs. CFG con dropout de etiqueta w!=1 con token
-% nulo) y la perdida de entrenamiento de cada una.
-% Ref.: eq. (67),(70),(77) y Algoritmo 5 (p.41) del apunte MIT; Remark 26 (p.39).
-\textit{[Completar.]}
+\noindent\textbf{(d) Regla de \emph{classifier-free guidance}.}
+Por Bayes, $\nabla\log p_t(x\mid y)=\nabla\log p_t(x)+\nabla\log p_t(y\mid x)$;
+amplificar artificialmente el término ``clasificador''
+$\nabla\log p_t(y\mid x)$ por una escala $w$ da la regla de CFG
+\[
+\tilde s_t(x\mid y)=(1-w)\,\nabla\log p_t(x\mid\varnothing)+w\,\nabla\log p_t(x\mid y).
+\]
+Para $w=1$ se recupera exactamente el score guiado verdadero
+$\nabla\log p_t(x\mid y)$; para $w\neq1$ es una \textbf{heurística}: no es
+el score de ninguna densidad real, solo refuerza artificialmente la señal
+de la etiqueta. Entrenamos dos redes con la misma arquitectura
+(\texttt{model.py}), que difieren solo en su entrenamiento:
+
+\emph{Red condicional pura} (\texttt{modelo\_cond.pt}, \texttt{label\_dropout=0},
+sin token nulo): $y$ real siempre, pérdida DSM estándar del ítem (b); se
+muestrea con $w=1$, sin necesitar $\varnothing$.
+
+\emph{Red con CFG} (\texttt{modelo\_cfg.pt}, \texttt{label\_dropout}=$\eta$=0.1,
+con token nulo $\varnothing$): $y$ se reemplaza por $\varnothing$ con
+probabilidad $\eta$, independiente por muestra (entrenamiento CFG, apunte
+MIT):
+\[
+\mathcal L_{\mathrm{CFG}}(\theta)=\mathbb E_{t,z,\varepsilon,\tilde y}
+\big\|\epsilon_\theta(\alpha_t z+\beta_t\varepsilon,\,t,\,\tilde y)-\varepsilon\big\|^2,
+\qquad
+\tilde y=\begin{cases}\varnothing & \text{con prob. }\eta\\ y & \text{en otro caso.}\end{cases}
+\]
+En inferencia se combina $\tilde\varepsilon=(1-w)\,\epsilon_\theta(x,t,\varnothing)+w\,\epsilon_\theta(x,t,y)$
+—equivalente a combinar $s_\theta$ o $u_\theta$ por separado, al ser ambos
+transformaciones afines de $\epsilon_\theta$ (ítem (c))—, con el $w$
+elegido y justificado en Resultados.
 
 \smallskip
 \noindent\textbf{(e) Algoritmo de muestreo.}
-% Completar: presentar en formato de algoritmo (ver curso) la integracion de
-% la SDE reversa con Euler-Maruyama aplicando CFG.
-% Ref.: Summary 28 (p.42) / Algoritmo 2 (p.12) del apunte MIT.
-\textit{[Completar.]}
+Integramos la SDE reversa vía Euler--Maruyama aplicando la regla de CFG del
+ítem (d) (Algoritmo~\ref{alg:sample}); $T_{\min}>0$ evita dividir por
+$\alpha_t\approx0$ cerca de $t=0$.
+
+\begin{algorithm}[H]
+\caption{Muestreo condicional con CFG (Euler--Maruyama)}
+\label{alg:sample}
+\small
+\begin{algorithmic}[1]
+\Require $\epsilon_\theta$ entrenada, etiqueta $y$, escala $w$, pasos $n$, $\sigma_{\mathrm{coef}}$, $T_{\min}$
+\State $h\leftarrow 1/n$;\quad $t\leftarrow 0$;\quad $X\sim\mathcal N(0,I_d)$
+\For{$i=1,\dots,n$}
+  \State $t'\leftarrow\max(t,T_{\min})$
+  \If{$w=1$}
+    \State $\tilde\varepsilon\leftarrow\epsilon_\theta(X,t',y)$
+  \Else
+    \State $\tilde\varepsilon\leftarrow(1-w)\,\epsilon_\theta(X,t',\varnothing)+w\,\epsilon_\theta(X,t',y)$
+  \EndIf
+  \State $u\leftarrow(X-\tilde\varepsilon)/t'$;\quad $s\leftarrow-\tilde\varepsilon/(1-t')$;\quad $\sigma\leftarrow\sigma_{\mathrm{coef}}(1-t')$
+  \State $z\sim\mathcal N(0,I_d)$
+  \State $X\leftarrow X+h\big[u+\tfrac{\sigma^2}{2}s\big]+\sqrt{h}\,\sigma z$
+  \State $t\leftarrow t+h$
+\EndFor
+\State \Return $X$
+\end{algorithmic}
+\end{algorithm}
 
 \section{Resultados}
 
 \noindent\textbf{Arquitectura.}
-% Completar: red (UNet condicional / CNN clasificador), hiperparametros,
-% tamano de batch, optimizador, etc. Mantener compacto (ver discusion sobre
-% limite de 3 paginas); detalle extendido -> apendice de calculos.
-\textit{[Completar.]}
+\emph{Difusión} (\texttt{model.py}): UNet 2D condicional, canales
+$1{\to}32{\to}64{\to}128$ con \textit{downsampling} $28{\to}14{\to}7$ y
+decoder simétrico con \textit{skip connections}; $t$ (embedding sinusoidal)
+e $y$ (embedding con token nulo $\varnothing$) se inyectan de forma aditiva
+(FiLM) en cada bloque residual; $\sim$1.27M parámetros (detalle por capa en
+el Apéndice~A). \emph{Clasificador} (\texttt{model\_clf.py}): CNN de 3
+bloques \texttt{conv+MaxPool} + MLP, $\sim$1.70M parámetros. Optimizador
+Adam, \texttt{lr}$=3\times10^{-4}$ (difusión) / $10^{-3}$ (clasificador),
+\texttt{batch\_size}$=256$, 40 épocas (redes de difusión) / 8 épocas
+(clasificador), \texttt{label\_dropout}$=0.1$ para \texttt{modelo\_cfg},
+semilla fija (\texttt{seed=0}), entrenado en GPU (Colab, T4).
 
 \smallskip
 \noindent\textbf{Validación experimental.}
-% Completar: fidelidad condicional y diversidad, comparando modelo_cond (w=1)
-% vs modelo_cfg (w!=1), y discusion del compromiso fidelidad/diversidad como
-% reflejo de la naturaleza heuristica de CFG para w!=1.
-\textit{[Completar.]}
+Con el clasificador como juez automático (1000 muestras/red, 1000 pasos de
+Euler--Maruyama, $w=3$ para \texttt{modelo\_cfg} — justificación de $w$ más
+abajo):
+\begin{center}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Red & Fidelidad promedio & Diversidad promedio \\
+\midrule
+\texttt{modelo\_cond} ($w=1$) & 93.1\% (rango 89--97\% por clase) & 17.27 \\
+\texttt{modelo\_cfg} ($w=3$)  & \textbf{100\%} (las 10 clases)    & 16.65 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\texttt{modelo\_cfg} alcanza fidelidad perfecta a cambio de solo
+$\sim$3.6\% menos diversidad intra-clase (distancia media por pares en
+espacio de píxeles) — el compromiso esperado de la naturaleza heurística de
+CFG (ítem (d)): al amplificar artificialmente $\nabla\log p_t(y\mid x)$,
+las muestras se concentran más cerca de los modos de alta verosimilitud
+bajo el clasificador, sacrificando algo de variabilidad. Elegimos $w=3$
+por ser el punto donde la fidelidad ya satura en 100\% sin una caída
+mayor de diversidad (Fig.~\ref{fig:eval}).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\linewidth]{../figures/evaluate/fidelidad_por_clase.png}
+\includegraphics[width=0.48\linewidth]{../figures/evaluate/diversidad_por_clase.png}
+\caption{Fidelidad y diversidad por clase, \texttt{modelo\_cond} ($w=1$) vs.\ \texttt{modelo\_cfg} ($w=3$).}
+\label{fig:eval}
+\end{figure}
 
 \smallskip
 \noindent\textbf{Curvas de pérdida.}
-% Completar: incluir figuras/loss/modelo_cond_loss.png y modelo_cfg_loss.png.
-\textit{[Completar.]}
+Ambas redes de difusión convergen de forma limpia y estable de
+${\sim}1.1$ a ${\sim}0.04$--$0.05$ (MSE de ruido) en 40 épocas
+(Fig.~\ref{fig:loss}), sin señales de inestabilidad ni sobreajuste.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\linewidth]{../figures/loss/modelo_cond_loss.png}
+\includegraphics[width=0.48\linewidth]{../figures/loss/modelo_cfg_loss.png}
+\caption{Curva de pérdida de entrenamiento: \texttt{modelo\_cond} (izq.) y \texttt{modelo\_cfg} (der.).}
+\label{fig:loss}
+\end{figure}
 
 \smallskip
 \noindent\textbf{Ejemplos de generación.}
-% Completar: incluir grillas de figures/samples/ (modelo_cond y modelo_cfg).
-\textit{[Completar.]}
+La Fig.~\ref{fig:samples} muestra dígitos generados por \texttt{modelo\_cfg}
+con $w=3$ (una fila por clase, 0--9): son claramente reconocibles y
+consistentes con la fidelidad del 100\% reportada arriba.
+
+\begin{figure}[H]
+\centering
+\includegraphics[height=4.5cm]{../figures/samples/modelo_cfg_w3.png}
+\caption{Muestras de \texttt{modelo\_cfg} con $w=3$, una fila por clase (0--9).}
+\label{fig:samples}
+\end{figure}
 
 \section*{Referencias}
-% No cuenta para el limite de 3 paginas. Citar score_matching_teoria.pdf y
-% el apunte MIT (Holderrieth & Erives, An Introduction to Flow Matching and
-% Diffusion Models, MIT 6.S184, 2025).
+\begin{enumerate}
+\item A. Medina. \emph{Score Matching: Fundamentos Matemáticos, Demostraciones
+  Completas y Aplicación al Análisis de Imágenes}. Documento de estudio,
+  repositorio \texttt{score\_matching}, 2026.
+\item P. Holderrieth, E. Erives. \emph{An Introduction to Flow Matching and
+  Diffusion Models}. MIT Class 6.S184, 2025.
+\item J. Ho, A. Jain, P. Abbeel. \emph{Denoising Diffusion Probabilistic
+  Models}. NeurIPS, 2020.
+\item J. Ho, T. Salimans. \emph{Classifier-Free Diffusion Guidance}.
+  arXiv:2207.12598, 2022.
+\end{enumerate}
 
 \appendix
 \section{Cálculos}
-% No cuenta para el limite de 3 paginas ni tiene extension maxima. Usar solo
-% para calculos genuinos (p.ej. conteo de parametros por capa de la UNet y
-% la CNN), no para diagramas de arquitectura (ver discusion previa).
+
+\noindent\textbf{Conteo de parámetros por bloque, UNet (\texttt{model.py}),
+total 1{,}270{,}817:}
+\begin{center}
+\small
+\begin{tabular}{@{}lr@{\hspace{2em}}lr@{}}
+\toprule
+Bloque & Parámetros & Bloque & Parámetros \\
+\midrule
+\texttt{time\_mlp}        & 33{,}024  & \texttt{mid1}      & 312{,}192 \\
+\texttt{label\_embedding} & 1{,}408   & \texttt{mid2}      & 312{,}192 \\
+\texttt{cond\_mlp}        & 16{,}512  & \texttt{up2}       & 131{,}136 \\
+\texttt{init\_conv}       & 320       & \texttt{dec2}      & 127{,}616 \\
+\texttt{enc1}             & 22{,}752  & \texttt{up1}       & 32{,}800  \\
+\texttt{down1}            & 32{,}832  & \texttt{dec1}      & 34{,}112  \\
+\texttt{enc2}             & 82{,}368  & \texttt{out\_norm} & 64        \\
+\texttt{down2}            & 131{,}200 & \texttt{out\_conv} & 289       \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent\textbf{Conteo de parámetros por capa, CNN clasificador
+(\texttt{model\_clf.py}), total 1{,}701{,}130:}
+\begin{center}
+\small
+\begin{tabular}{@{}lcr@{}}
+\toprule
+Capa & Forma de salida & Parámetros \\
+\midrule
+\texttt{Conv2d(1$\to$32,k3,p1)} + ReLU  & $32\times28\times28$ & 320 \\
+\texttt{Conv2d(32$\to$64,k3,p1)} + ReLU & $64\times28\times28$ & 18{,}496 \\
+\texttt{MaxPool2d(2)}                    & $64\times14\times14$ & 0 \\
+\texttt{Conv2d(64$\to$128,k3,p1)} + ReLU & $128\times14\times14$ & 73{,}856 \\
+\texttt{MaxPool2d(2)}                    & $128\times7\times7$ & 0 \\
+\texttt{Flatten}                         & $6272$ & 0 \\
+\texttt{Linear(6272$\to$256)} + ReLU     & $256$ & 1{,}605{,}888 \\
+\texttt{Dropout(0.5)}                    & $256$ & 0 \\
+\texttt{Linear(256$\to$10)}              & $10$ & 2{,}570 \\
+\bottomrule
+\end{tabular}
+\end{center}
+Suma: $320+18{,}496+73{,}856+1{,}605{,}888+2{,}570=1{,}701{,}130$,
+consistente con el total reportado por \texttt{sum(p.numel() for p in
+model.parameters())} sobre el checkpoint entregado.
 
 \end{document}
