@@ -38,22 +38,20 @@
 
 %---------------------------------------------
 \noindent
-\begin{minipage}{2cm}
+\begin{minipage}[c]{2cm}
 \includegraphics[scale=0.35]{../figures/logo.png}
 \end{minipage}%
-\begin{minipage}{13cm}
-\small\sc Universidad de Chile \quad
-Facultad de Cs. Físicas y Matemáticas \quad
-Departamento de Ingeniería Matemática \quad
+\begin{minipage}[c]{13cm}
+\small\sc Universidad de Chile \\
+Facultad de Cs. Físicas y Matemáticas \\
+Departamento de Ingeniería Matemática \\
 Primer Semestre 2026
 \end{minipage}
 %---------------------------------------------
 \begin{center}
 \vspace{2pt}
-\textbf{\Large{Tópicos Matemáticos en Aprendizaje de Máquinas, Redes Neuronales y Aprendizaje Profundo}}\\[4pt]
-{\small Profesores: Claudio Muñoz y Joaquín Fontbona \quad
-Auxiliares: David Felipe, Álvaro Márquez, Diego Olguín, Alonso Rojas y Alonso Urbina \quad
-Alumno: Andrés C. Medina}
+\textbf{\Large{Score Matching}}\\[4pt]
+{\normalsize Andrés C. Medina}
 \end{center}
 \vspace{4pt}
 
@@ -241,14 +239,20 @@ ${\sim}1.1$ a ${\sim}0.04$--$0.05$ (MSE de ruido) en 40 épocas
 
 \smallskip
 \noindent\textbf{Ejemplos de generación.}
-La Fig.~\ref{fig:samples} muestra dígitos generados por \texttt{modelo\_cfg}
-con $w=3$ (una fila por clase, 0--9): son claramente reconocibles y
-consistentes con la fidelidad del 100\% reportada arriba.
+La Fig.~\ref{fig:samples} compara las tres configuraciones evaluadas (una
+fila por clase, 0--9): \texttt{modelo\_cond} con $w=1$,
+\texttt{modelo\_cfg} con $w=1$ (sin guía) y \texttt{modelo\_cfg} con $w=3$
+(guía elegida). Los dígitos son claramente reconocibles en las tres, pero
+$w=3$ produce trazos visiblemente más nítidos y uniformes —consistente con
+la fidelidad del 100\,\% reportada arriba— a cambio de menos variación
+visual entre las tres muestras de cada fila.
 
 \begin{figure}[H]
 \centering
-\includegraphics[height=4.5cm]{../figures/samples/modelo_cfg_w3.png}
-\caption{Muestras de \texttt{modelo\_cfg} con $w=3$, una fila por clase (0--9).}
+\includegraphics[width=0.85\linewidth]{../figures/samples/comparacion_w.png}
+\caption{Muestras generadas, una fila por clase (0--9). Izquierda:
+\texttt{modelo\_cond} ($w=1$). Centro: \texttt{modelo\_cfg} sin guía
+($w=1$). Derecha: \texttt{modelo\_cfg} con la guía elegida ($w=3$).}
 \label{fig:samples}
 \end{figure}
 
@@ -267,6 +271,52 @@ consistentes con la fidelidad del 100\% reportada arriba.
 
 \appendix
 \section{Cálculos}
+
+\noindent\textbf{Diagramas de arquitectura.}
+Las Figuras~\ref{fig:unet-arch} y~\ref{fig:cnn-arch} muestran los diagramas
+completos de ambas redes, elaborados a mano verificando cada capa contra el
+código (\texttt{model.py}, \texttt{model\_clf.py}) y sus checkpoints.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.55\linewidth]{../figures/unet_sm.png}
+\caption{Arquitectura de la UNet condicional (\texttt{model.py}), en el
+formato clásico de Ronneberger et al.\ (2015). Cada rectángulo angosto es
+un mapa de características (el número arriba indica su cantidad de
+canales); flechas \textbf{azules}: \texttt{conv3$\times$3+SiLU}; flechas
+\textbf{verdes}: \texttt{conv3$\times$3+SiLU} con inyección de
+condicionamiento $\oplus=\mathrm{cond}(t,y)$ (FiLM aditivo, ítem (d)) dentro
+de cada bloque residual (\texttt{enc1}, \texttt{enc2}, \texttt{mid1},
+\texttt{mid2}, \texttt{dec2}, \texttt{dec1}); flechas \textbf{rojas}/
+\textbf{naranjas}: downsampling/upsampling \emph{aprendido}
+(\texttt{conv4$\times$4} stride 2 y su transpuesta, \texttt{down1/2} y
+\texttt{up1/2}); flechas \textbf{grises}: conexión de salto
+(\textit{copy \& concat}); flecha \textbf{púrpura}: convolución de salida
+(\texttt{out\_conv}, \texttt{conv3$\times$3}, sin condicionamiento). A
+diferencia del paper original, aquí no hay recorte espacial —todas las
+convoluciones $3\times3$ usan \texttt{padding=1}— ni \textit{max-pooling}:
+el downsampling/upsampling es enteramente aprendido (ítem (a) y
+Arquitectura en Resultados).}
+\label{fig:unet-arch}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{../figures/cnn_sm.png}
+\caption{Arquitectura del clasificador auxiliar (\texttt{model\_clf.py}),
+usado como juez automático en \texttt{evaluate.py}. Los prismas apilados
+representan mapas de características tras cada bloque convolucional (forma
+\texttt{(canales, alto, ancho)} indicada arriba); tras \texttt{Conv Block 2}
+el tensor se aplana (\texttt{Flatten}) en un vector de 6272 valores, sin
+parámetros propios —es solo un \textit{reshape}—. Las \emph{líneas
+punteadas} entre columnas de neuronas representan los pesos aprendidos de
+cada capa \texttt{Linear} (los parámetros viven en las conexiones, no en
+los círculos): rojo$\to$verde es \texttt{FC1}
+(\texttt{Linear(6272$\to$256)}, 1{,}605{,}888 parámetros) y
+verde$\to$morado es la capa de salida (\texttt{Linear(256$\to$10)},
+2{,}570 parámetros), que entrega los logits sobre los 10 dígitos.}
+\label{fig:cnn-arch}
+\end{figure}
 
 \noindent\textbf{Conteo de parámetros por bloque, UNet (\texttt{model.py}),
 total 1{,}270{,}817:}
