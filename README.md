@@ -26,8 +26,9 @@ score_matching/
 │   └── pipeline.png    # diagrama del flujo entre archivos (ver mas abajo)
 ├── informe/            # informe.pdf (maximo 3 planas) + fuente si aplica
 └── notebooks/
-    ├── train_colab.ipynb   # orquestador: clona el repo y entrena en GPU (ver seccion de abajo)
-    └── ...                 # notebooks de exploracion inicial (opcional, no evaluado)
+    ├── orquestador_colab.ipynb   # orquestador: clona el repo y entrena en GPU (Colab, ver seccion de abajo)
+    ├── orquestador_local.ipynb   # mismo orquestador pero local (CPU/MPS/CUDA), sin clonar (ver seccion de abajo)
+    └── ...                       # notebooks de exploracion inicial (opcional, no evaluado)
 ```
 
 ### 🧩 Grafo entre archivos
@@ -57,9 +58,6 @@ pip install -r requirements.txt
 
 ## Reproducir resultados
 
-> TODO: completar con los comandos exactos una vez implementado el código,
-> de modo que reproduzcan lo mostrado en el video.
-
 ```bash
 python download_data.py
 
@@ -75,12 +73,17 @@ python evaluate.py --modelo-cond checkpoints/modelo_cond.pt \
     --w <w_elegido>
 ```
 
+Estos son los comandos exactos que orquestan los dos notebooks de abajo. Un
+`.sh` no corre igual en Windows que en macOS/Linux, así que para reproducirlos
+de forma homogénea entre sistemas operativos usa `notebooks/orquestador_local.ipynb`
+en vez de pegar estos comandos a mano.
+
 ## 🎮 Entrenamiento en GPU (Colab)
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/anmedinas/score_matching/blob/main/notebooks/train_colab.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/anmedinas/score_matching/blob/main/notebooks/orquestador_colab.ipynb)
 
-`notebooks/train_colab.ipynb` es el notebook que usamos para entrenar los
-checkpoints entregados en GPU. **No reimplementa nada**: clona este mismo
+`notebooks/orquestador_colab.ipynb` es el notebook que usamos para entrenar
+los checkpoints entregados en GPU. **No reimplementa nada**: clona este mismo
 repo desde GitHub y ejecuta `download_data.py`, `train.py`, `train_clf.py`,
 `sample.py` y `evaluate.py` tal cual están en el código (los mismos comandos
 de la sección "Reproducir resultados" de arriba), así el checkpoint
@@ -91,9 +94,25 @@ Para usarlo: abrirlo con el botón de arriba (o subirlo a Colab manualmente),
 `Entorno de ejecución -> Cambiar tipo de entorno de ejecución -> GPU`, y
 ejecutar todas las celdas. Los hiperparámetros (épocas, batch size,
 learning rate, `label_dropout`, `w` de CFG, pasos de muestreo) son
-editables en una celda de formulario antes de entrenar — no hay valores
-altos fijados de antemano, se ajustan según el tiempo de GPU disponible. Al
-final, empaqueta `checkpoints/` y `figures/` en un `.zip` descargable.
+editables en una celda antes de entrenar — no hay valores altos fijados de
+antemano, se ajustan según el tiempo de GPU disponible. Al final, empaqueta
+`checkpoints/` y `figures/` en un `.zip` descargable.
+
+## 💻 Entrenamiento local (notebook)
+
+`notebooks/orquestador_local.ipynb` es la versión local del notebook de
+arriba: mismas instrucciones, mismo orden, mismos scripts reales del repo —
+nada se reimplementa. Existe porque un `.sh` con los comandos de "Reproducir
+resultados" no es homogéneo entre sistemas operativos (Windows en particular),
+mientras que un notebook con `!python ...` sí corre igual en cualquier SO.
+
+A diferencia del de Colab: no clona el repo (asume que ya lo tienes clonado
+localmente y ubica su raíz automáticamente), detecta el dispositivo
+disponible (`cuda` -> `mps` -> `cpu`) en vez de asumir GPU, instala
+`requirements.txt` completo (Colab excluye `torch`/`torchvision` porque ya
+trae una build CUDA preinstalada), y al final solo lista los archivos
+generados en `checkpoints/`/`figures/` en vez de empaquetarlos en un `.zip`
+(ya están en tu copia local, no hace falta descargarlos).
 
 ## 🍺 Delibery
 
