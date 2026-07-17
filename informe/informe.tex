@@ -201,19 +201,19 @@ abajo):
 \toprule
 Red & Fidelidad promedio & Diversidad promedio \\
 \midrule
-\texttt{modelo\_cond} ($w=1$) & 93.1\% (rango 89--97\% por clase) & 17.27 \\
-\texttt{modelo\_cfg} ($w=3$)  & \textbf{100\%} (las 10 clases)    & 16.65 \\
+\texttt{modelo\_cond} ($w=1$) & 90.4\% (rango 83--95\% por clase) & 19.46 \\
+\texttt{modelo\_cfg} ($w=3$)  & \textbf{100\%} (las 10 clases)    & 16.90 \\
 \bottomrule
 \end{tabular}
 \end{center}
-\texttt{modelo\_cfg} alcanza fidelidad perfecta a cambio de solo
-$\sim$3.6\% menos diversidad intra-clase (distancia media por pares en
+\texttt{modelo\_cfg} alcanza fidelidad perfecta a cambio de
+$\sim$13.2\% menos diversidad intra-clase (distancia media por pares en
 espacio de píxeles) — el compromiso esperado de la naturaleza heurística de
 CFG (ítem (d)): al amplificar artificialmente $\nabla\log p_t(y\mid x)$,
 las muestras se concentran más cerca de los modos de alta verosimilitud
 bajo el clasificador, sacrificando algo de variabilidad. Elegimos $w=3$
-por ser el punto donde la fidelidad ya satura en 100\% sin una caída
-mayor de diversidad (Fig.~\ref{fig:eval}).
+por ser el punto donde la fidelidad ya satura en 100\% con una caída
+todavía moderada de diversidad (Fig.~\ref{fig:eval}).
 
 \begin{figure}[H]
 \centering
